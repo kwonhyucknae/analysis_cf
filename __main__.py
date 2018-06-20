@@ -5,7 +5,7 @@ import collection.crawler as cw
 
 def crawling_pelicana():
     results = []
-    for page in range(1, 2):
+    for page in count(start=1):
         url = 'http://www.pelicana.co.kr/store/stroe_search.html?gu=&si=&page=%d' % page
         html = cw.crawling(url=url)
 

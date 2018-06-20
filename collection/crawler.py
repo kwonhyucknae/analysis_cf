@@ -20,6 +20,7 @@ def crawling(
         except UnicodeDecodeError:
             result = receive.decode(encoding, 'replace')
 
+        print('%s: success for request [%s]' % (datetime.now(), url))
         return result
 
     except Exception as e:
