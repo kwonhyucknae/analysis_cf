@@ -1,5 +1,6 @@
 import urllib
 from itertools import count
+from datetime import datetime
 import pandas as pd
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as et
@@ -80,10 +81,12 @@ def crawling_goobne():
     wd.get(url)
     time.sleep(5)
 
-    for page in range(101, 105):
+    results = []
+    for page in count(start=1):
         # 자바스크립트 실행
         script = 'store.getList(%d)' % page
         wd.execute_script(script)
+        print('%s : success for script execute [%s]' % (datetime.now(), script))
         time.sleep(5)
 
         # 실행결과HTML(rendering된 HTML) 가져오기
@@ -98,9 +101,21 @@ def crawling_goobne():
         if tags_tr[0].get('class') is None:
             break
 
-        print(tag_tbody)
+        for tag_tr in tags_tr:
+            strings = list(tag_tr.strings)
+            name = strings[1]
+            address = strings[6]
+            sidogu = address.split()[:2]
 
+            results.append((name, address) + tuple(sidogu))
 
+    # store
+    table = pd.DataFrame(results, columns=['name', 'address', 'sido', 'gungu'])
+
+    table['sido'] = table.sido.apply(lambda v: sido_dict.get(v, v))
+    table['gungu'] = table.gungu.apply(lambda v: gungu_dict.get(v, v))
+
+    table.to_csv('{0}/goobne_table.csv'.format(RESULT_DIRECTORY), encoding='utf-8', mode='w', index=True)
 
 
 if __name__ == '__main__':
