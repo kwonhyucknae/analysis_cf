@@ -1,4 +1,5 @@
 import urllib
+import os
 from itertools import count
 from datetime import datetime
 import pandas as pd
@@ -156,6 +157,9 @@ def crawling_goobne():
 
     table.to_csv('{0}/goobne_table.csv'.format(RESULT_DIRECTORY), encoding='utf-8', mode='w', index=True)
 
+if not os.path.exists(RESULT_DIRECTORY):
+    os.makedirs(RESULT_DIRECTORY)
+
 
 if __name__ == '__main__':
     # pelicana
@@ -171,7 +175,7 @@ if __name__ == '__main__':
     '''
 
     # kyochon
-    crawling_kyochon()
+    #crawling_kyochon()
 
     # goobne
-    # crawling_goobne()
+    #crawling_goobne()
