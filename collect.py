@@ -70,7 +70,46 @@ def store_nene(data):
 
 
 def crawling_kyochon():
-    pass
+    result = []
+
+    for sido1 in range(1, 18):
+        for sido2 in count(start=1):
+            url = 'http://www.kyochon.com/shop/domestic.asp?sido1=%d&sido2=%d&txtsearch=' % (sido1, sido2)
+            html = cw.crawling(url=url)
+
+            if html is None:
+                break
+
+            bs = BeautifulSoup(html, 'html.parser')
+            tag_ul = bs.find('ul', attrs={'class': 'list'})
+
+            for tag_a in tag_ul.findAll('a'):
+                tag_dt = tag_a.find('dt')
+                if tag_dt is None:
+                    break
+
+                name = tag_dt.get_text()
+
+                tag_dd = tag_a.find('dd')
+                if tag_dd is None:
+                    break
+
+                address = tag_dd.get_text().strip().split('\r')[0]
+                sidogu = address.split()[:2]
+                result.append((name, address) + tuple(sidogu))
+
+    table = pd.DataFrame(result, columns=['name', 'address', 'sido', 'gungu'])
+
+    # 중복 제거
+    table = table.\
+        drop_duplicates(subset='name', keep='first').\
+        reset_index(drop=True)
+
+    table['sido'] = table.sido.apply(lambda v: sido_dict.get(v, v))
+    table['gungu'] = table.gungu.apply(lambda v: gungu_dict.get(v, v))
+
+    table.to_csv('{0}/kyochon_table.csv'.format(RESULT_DIRECTORY), encoding='utf-8', mode='w', index=True)
+
 
 
 def crawling_goobne():
@@ -132,7 +171,7 @@ if __name__ == '__main__':
     '''
 
     # kyochon
-    # crawling_kyochon()
+    crawling_kyochon()
 
     # goobne
-    crawling_goobne()
+    # crawling_goobne()
